@@ -73,14 +73,14 @@
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/investmind-frontend.git
+git clone https://github.com/SumanKumar5/InvestMinD-frontend.git
 cd investmind-frontend
 
 # Install dependencies
 npm install
 
 # Set environment variable
-echo "VITE_API_BASE_URL=https://investmind-app-c7irq.ondigitalocean.app" > .env
+echo "VITE_API_BASE_URL=yourbackendurl" > .env
 
 # Start dev server
 npm run dev
@@ -88,20 +88,6 @@ npm run dev
 
 ---
 
-## 🌍 Deployment (Vercel)
+## 📎 License
 
-1. Push your code to GitHub
-2. Go to [vercel.com](https://vercel.com/) → Import Project
-3. Set:
-   - **Framework**: Vite
-   - **Build Command**: `vite build`
-   - **Output Dir**: `dist`
-   - **Environment Variable**:  
-     `VITE_API_BASE_URL=https://investmind-app-c7irq.ondigitalocean.app`
-4. Deploy and you're live 🚀
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
+MIT © [[Suman Kumar](https://github.com/SumanKumar5)]

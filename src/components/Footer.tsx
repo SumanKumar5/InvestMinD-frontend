@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
           
           {/* Navigation Links */}
           <nav className="mb-6 sm:mb-8">
-            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
+            <ul className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-center px-4 w-full max-w-screen-sm mx-auto">
               <li>
                 <a 
                   href="https://github.com/SumanKumar5/InvestMinD" 
