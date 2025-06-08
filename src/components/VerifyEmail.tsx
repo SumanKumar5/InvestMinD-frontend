@@ -3,10 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Brain, X, CheckCircle2, AlertCircle, Mail, RefreshCw, Clock } from 'lucide-react';
 import { verifyEmail, resendOtp } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
+import { useAuthLoading } from '../contexts/AuthLoadingContext';
 
 const VerifyEmail: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { startAuthLoading, stopAuthLoading } = useAuthLoading();
   const emailFromState = location.state?.email || localStorage.getItem('unverifiedEmail') || '';
 
   // Redirect if already logged in
@@ -27,7 +29,6 @@ const VerifyEmail: React.FC = () => {
   const [email, setEmail] = useState(emailFromState);
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -71,7 +72,7 @@ const VerifyEmail: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    startAuthLoading('Verifying your email...');
     setError('');
 
     try {
@@ -106,9 +107,11 @@ const VerifyEmail: React.FC = () => {
 
       // Redirect to portfolio
       setTimeout(() => {
+        stopAuthLoading();
         navigate('/portfolio');
       }, 1000);
     } catch (err: any) {
+      stopAuthLoading();
       const message = err.response?.data?.message || 'Invalid OTP. Please try again.';
       setError(message);
       toast.custom((t) => (
@@ -133,8 +136,6 @@ const VerifyEmail: React.FC = () => {
           </button>
         </div>
       ), { duration: 4000 });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -292,7 +293,6 @@ const VerifyEmail: React.FC = () => {
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Enter your email"
                   required
-                  disabled={isLoading || isResending}
                 />
               </div>
 
@@ -310,7 +310,6 @@ const VerifyEmail: React.FC = () => {
                   placeholder="000000"
                   maxLength={6}
                   required
-                  disabled={isLoading}
                   autoComplete="one-time-code"
                 />
                 <p className="text-xs text-gray-500 mt-2 text-center">
@@ -321,12 +320,12 @@ const VerifyEmail: React.FC = () => {
 
             <button
               type="submit"
-              disabled={isLoading || otp.length !== 6}
+              disabled={otp.length !== 6}
               className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 ${
-                (isLoading || otp.length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
+                otp.length !== 6 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isLoading ? 'Verifying...' : 'Verify Email'}
+              Verify Email
             </button>
 
             {/* Resend OTP Section */}

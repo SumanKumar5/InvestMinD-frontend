@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Brain, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { signup } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
+import { useAuthLoading } from '../contexts/AuthLoadingContext';
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
+  const { startAuthLoading, stopAuthLoading } = useAuthLoading();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -24,7 +26,6 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
@@ -118,7 +119,7 @@ const Signup: React.FC = () => {
     
     if (!validateForm()) return;
 
-    setIsLoading(true);
+    startAuthLoading('Creating your account...');
     setError('');
 
     try {
@@ -149,9 +150,11 @@ const Signup: React.FC = () => {
 
       // Redirect to verify email page with email in state
       setTimeout(() => {
+        stopAuthLoading();
         navigate('/verify-email', { state: { email: formData.email } });
       }, 1000);
     } catch (err: any) {
+      stopAuthLoading();
       const message = err.response?.data?.message || 'An error occurred during signup';
       setError(message);
       toast.custom((t) => (
@@ -176,8 +179,6 @@ const Signup: React.FC = () => {
           </button>
         </div>
       ), { duration: 4000 });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -273,7 +274,6 @@ const Signup: React.FC = () => {
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Enter your full name"
                   required
-                  disabled={isLoading}
                 />
               </div>
 
@@ -295,7 +295,6 @@ const Signup: React.FC = () => {
                   }`}
                   placeholder="Enter your email"
                   required
-                  disabled={isLoading}
                 />
                 {emailError && (
                   <div className="mt-2 flex items-center space-x-2 text-red-400 text-sm">
@@ -320,13 +319,11 @@ const Signup: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-10"
                     placeholder="Min. 6 characters"
                     required
-                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
-                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -358,13 +355,11 @@ const Signup: React.FC = () => {
                     }`}
                     placeholder="Confirm your password"
                     required
-                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
-                    disabled={isLoading}
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -386,12 +381,12 @@ const Signup: React.FC = () => {
 
             <button
               type="submit"
-              disabled={isLoading || !isFormValid()}
+              disabled={!isFormValid()}
               className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 ${
-                (isLoading || !isFormValid()) ? 'opacity-50 cursor-not-allowed' : ''
+                !isFormValid() ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              Create Account
             </button>
 
             <p className="text-center text-gray-400 mt-8">

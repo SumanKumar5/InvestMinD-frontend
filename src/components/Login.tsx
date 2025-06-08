@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Brain, X, CheckCircle2, AlertCircle } from "lucide-react";
 import { login } from "../services/api";
 import toast, { Toaster } from "react-hot-toast";
+import { useAuthLoading } from "../contexts/AuthLoadingContext";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { startAuthLoading, stopAuthLoading } = useAuthLoading();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -19,7 +21,6 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
 
   // Email validation function
@@ -59,7 +60,7 @@ const Login: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    startAuthLoading("Signing you in...");
     setError("");
 
     try {
@@ -95,9 +96,11 @@ const Login: React.FC = () => {
 
       // Short delay to show the success message
       setTimeout(() => {
+        stopAuthLoading();
         navigate("/portfolio");
-      }, 500);
+      }, 800);
     } catch (err: any) {
+      stopAuthLoading();
       const message =
         err.response?.data?.message || "Invalid email or password";
 
@@ -164,8 +167,6 @@ const Login: React.FC = () => {
           { duration: 4000 }
         );
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -269,7 +270,6 @@ const Login: React.FC = () => {
                   }`}
                   placeholder="Enter your email"
                   required
-                  disabled={isLoading}
                 />
                 {emailError && (
                   <div className="mt-2 flex items-center space-x-2 text-red-400 text-sm">
@@ -299,13 +299,11 @@ const Login: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-10"
                     placeholder="Enter your password"
                     required
-                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
-                    disabled={isLoading}
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -314,19 +312,30 @@ const Login: React.FC = () => {
                     )}
                   </button>
                 </div>
+                
+                {/* Forgot Password Link */}
+                <div className="mt-2 text-right">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/forgot-password')}
+                    className="text-sm text-blue-500 hover:text-blue-400 transition-colors"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={isLoading || !isFormValid()}
+              disabled={!isFormValid()}
               className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 ${
-                isLoading || !isFormValid()
+                !isFormValid()
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
             >
-              {isLoading ? "Logging in..." : "Log In"}
+              Log In
             </button>
 
             <p className="text-center text-gray-400 mt-8">

@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
+import { AuthLoadingProvider } from "./contexts/AuthLoadingContext";
 import ScrollToTop from "./components/ScrollToTop";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -12,6 +13,8 @@ import Footer from "./components/Footer";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 import Portfolio from "./components/Portfolio";
 import PortfolioDetails from "./components/PortfolioDetails";
 import HoldingTransactions from "./components/HoldingTransactions";
@@ -24,40 +27,44 @@ function App() {
   return (
     <Router>
       <LoadingProvider>
-        <AuthProvider>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route
-              path="/portfolio/:portfolioId"
-              element={<PortfolioDetails />}
-            />
-            <Route
-              path="/holding/:holdingId"
-              element={<HoldingTransactions />}
-            />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route
-              path="/"
-              element={
-                <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
-                  <Header />
-                  <main className="flex-grow">
-                    <Hero />
-                    <AssetTable />
-                    <Features />
-                    <Testimonials />
-                  </main>
-                  <Footer />
-                </div>
-              }
-            />
-          </Routes>
-        </AuthProvider>
+        <AuthLoadingProvider>
+          <AuthProvider>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route
+                path="/portfolio/:portfolioId"
+                element={<PortfolioDetails />}
+              />
+              <Route
+                path="/holding/:holdingId"
+                element={<HoldingTransactions />}
+              />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route
+                path="/"
+                element={
+                  <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
+                    <Header />
+                    <main className="flex-grow">
+                      <Hero />
+                      <AssetTable />
+                      <Features />
+                      <Testimonials />
+                    </main>
+                    <Footer />
+                  </div>
+                }
+              />
+            </Routes>
+          </AuthProvider>
+        </AuthLoadingProvider>
       </LoadingProvider>
       <Analytics />
       <SpeedInsights />
