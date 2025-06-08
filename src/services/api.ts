@@ -48,6 +48,22 @@ export const resendOtp = async (email: string) => {
   return response.data;
 };
 
+// Request password reset OTP
+export const requestPasswordReset = async (email: string) => {
+  const response = await api.post('/api/auth/request-reset', { email });
+  return response.data;
+};
+
+// Reset password using OTP
+export const resetPassword = async (email: string, otp: string, newPassword: string) => {
+  const response = await api.post('/api/auth/reset-password', {
+    email,
+    otp,
+    newPassword,
+  });
+  return response.data;
+};
+
 // Portfolio endpoints
 export const getPortfolios = async () => {
   const response = await api.get('/api/portfolios');

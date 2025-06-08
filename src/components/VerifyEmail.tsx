@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 const VerifyEmail: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const emailFromState = location.state?.email || '';
+  const emailFromState = location.state?.email || localStorage.getItem('unverifiedEmail') || '';
 
   // Redirect if already logged in
   useEffect(() => {
@@ -78,6 +78,8 @@ const VerifyEmail: React.FC = () => {
       const { token, name, email: userEmail } = await verifyEmail(email, otp);
       localStorage.setItem('investmind_token', token);
       localStorage.setItem('user', JSON.stringify({ name, email: userEmail }));
+
+      localStorage.removeItem('unverifiedEmail');
 
       toast.custom((t) => (
         <div
