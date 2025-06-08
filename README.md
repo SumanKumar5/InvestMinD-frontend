@@ -7,6 +7,8 @@
 [![Deployed on Vercel](https://img.shields.io/badge/Deployment-Vercel-black?logo=vercel)](https://vercel.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
+A sleek, mobile-optimized frontend built in **React 18** using **TypeScript**, **Vite**, **Tailwind CSS**, and **Framer Motion** for animated UI transitions. It connects seamlessly to the [InvestMinD Backend](https://github.com/SumanKumar5/InvestMinD-backend) and offers full functionality for portfolio management, analytics, and AI insights.
+
 ---
 
 ## 🌐 Live Site
