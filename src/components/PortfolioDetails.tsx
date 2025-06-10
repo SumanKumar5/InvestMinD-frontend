@@ -241,23 +241,31 @@ const PortfolioDetails: React.FC = () => {
 
 
   // Event handlers
-  const handleAddHolding = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!portfolioId || !validateForm()) return;
+const handleAddHolding = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!portfolioId || !validateForm()) return;
 
-    setIsSubmitting(true);
-    try {
-      await addHolding(portfolioId, { ...newHolding, type: activeTab });
-      await fetchPortfolioData();
-      setIsAddModalOpen(false);
-      setNewHolding({ symbol: "", quantity: "", buyPrice: "", notes: "", companyName: "" });
-      toast.success("Transaction successful!");
-    } catch (err) {
-      toast.error("Failed to process transaction");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  setIsSubmitting(true);
+  try {
+    await addHolding(portfolioId, { ...newHolding, type: activeTab });
+    await fetchPortfolioData();
+    setIsAddModalOpen(false);
+    setNewHolding({
+      symbol: "",
+      quantity: "",
+      buyPrice: "",
+      notes: "",
+      companyName: "",
+    });
+    toast.success("Transaction successful!");
+  } catch (err: any) {
+    const message =
+      err?.response?.data?.message || "Failed to process transaction";
+    toast.error(message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleDeleteHolding = async () => {
     if (!holdingToDelete) return;
