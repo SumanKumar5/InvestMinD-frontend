@@ -117,6 +117,7 @@ export const addHolding = async (
     quantity: string;
     buyPrice: string;
     notes?: string;
+    companyName: string;
     type: 'buy' | 'sell';
   }
 ) => {
@@ -126,7 +127,8 @@ export const addHolding = async (
     avgBuyPrice: Number(holding.buyPrice),
     notes: holding.notes || "",
     type: holding.type,
-    currency: "USD"
+    currency: "USD",
+    companyName: holding.companyName.trim()
   };
 
   const response = await api.post(`/api/portfolios/${portfolioId}/holdings`, payload);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   PieChart,
   Pie,
@@ -6,7 +6,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Sector,
-} from 'recharts';
+} from "recharts";
 
 interface StockDistribution {
   symbol: string;
@@ -14,13 +14,27 @@ interface StockDistribution {
   percentage: number;
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#6366F1', '#EC4899', '#F59E0B', '#6B7280'];
-const OTHERS_COLOR = '#9CA3AF'; // Gray for "Others"
+const COLORS = [
+  "#3B82F6",
+  "#10B981",
+  "#6366F1",
+  "#EC4899",
+  "#F59E0B",
+  "#6B7280",
+];
+const OTHERS_COLOR = "#9CA3AF"; // Gray for "Others"
 
 const renderActiveShape = (props: any) => {
   const {
-    cx, cy, innerRadius, outerRadius, startAngle, endAngle,
-    fill, payload, percent
+    cx,
+    cy,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    fill,
+    payload,
+    percent,
   } = props;
 
   return (
@@ -34,8 +48,14 @@ const renderActiveShape = (props: any) => {
         endAngle={endAngle}
         fill={fill}
       />
-      <text x={cx} y={cy - 10} textAnchor="middle" fill="#fff" className="text-lg font-semibold">
-        {payload.symbol}
+      <text
+        x={cx}
+        y={cy - 10}
+        textAnchor="middle"
+        fill="#fff"
+        className="text-lg font-semibold"
+      >
+        {payload.symbol.replace(/\.NS|-USD/g, '')}
       </text>
       <text x={cx} y={cy + 15} textAnchor="middle" fill="#9CA3AF">
         {`${(percent * 100).toFixed(2)}%`}
@@ -48,7 +68,9 @@ interface DistributionChartProps {
   distribution: StockDistribution[];
 }
 
-const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) => {
+const DistributionChart: React.FC<DistributionChartProps> = ({
+  distribution,
+}) => {
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
   const onPieEnter = (_: any, index: number) => {
@@ -59,15 +81,18 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) =
     setActiveIndex(-1);
   };
 
-  // Step 1: Sort by percentage
+  // Sort by percentage
   const sorted = [...distribution].sort((a, b) => b.percentage - a.percentage);
 
-  // Step 2: Group bottom into "Others" if more than 5
+  // Group bottom into "Others" if more than 5
   const TOP_N = 5;
   const topHoldings = sorted.slice(0, TOP_N);
   const othersHoldings = sorted.slice(TOP_N);
 
-  const othersPercentage = othersHoldings.reduce((sum, item) => sum + item.percentage, 0);
+  const othersPercentage = othersHoldings.reduce(
+    (sum, item) => sum + item.percentage,
+    0
+  );
   const othersSymbols = othersHoldings.map((h) => h.symbol);
 
   const finalData =
@@ -75,8 +100,8 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) =
       ? [
           ...topHoldings,
           {
-            symbol: 'Others',
-            companyName: 'Other Assets',
+            symbol: "Others",
+            companyName: "Other Assets",
             percentage: othersPercentage,
             groupedSymbols: othersSymbols, // Pass for tooltip
           },
@@ -106,12 +131,20 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) =
                   >
                     <stop
                       offset="0%"
-                      stopColor={item.symbol === 'Others' ? OTHERS_COLOR : COLORS[index % COLORS.length]}
+                      stopColor={
+                        item.symbol === "Others"
+                          ? OTHERS_COLOR
+                          : COLORS[index % COLORS.length]
+                      }
                       stopOpacity={1}
                     />
                     <stop
                       offset="100%"
-                      stopColor={item.symbol === 'Others' ? OTHERS_COLOR : COLORS[index % COLORS.length]}
+                      stopColor={
+                        item.symbol === "Others"
+                          ? OTHERS_COLOR
+                          : COLORS[index % COLORS.length]
+                      }
                       stopOpacity={0.7}
                     />
                   </linearGradient>
@@ -134,7 +167,11 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) =
                   <Cell
                     key={`cell-${index}`}
                     fill={`url(#gradient-${index})`}
-                    stroke={item.symbol === 'Others' ? OTHERS_COLOR : COLORS[index % COLORS.length]}
+                    stroke={
+                      item.symbol === "Others"
+                        ? OTHERS_COLOR
+                        : COLORS[index % COLORS.length]
+                    }
                     strokeWidth={1}
                   />
                 ))}
@@ -144,19 +181,23 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) =
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     const symbols = data.groupedSymbols || [];
-                    const displayed = symbols.slice(0, 5).join(', ');
-                    const moreCount = symbols.length > 5 ? ` +${symbols.length - 5} more` : '';
+                    const displayed = symbols.slice(0, 5).join(", ");
+                    const moreCount =
+                      symbols.length > 5 ? ` +${symbols.length - 5} more` : "";
 
                     return (
                       <div className="bg-gray-900/95 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-gray-700">
-                        <p className="font-semibold text-white">{data.symbol}</p>
+                        <p className="font-semibold text-white">
+                          {data.symbol}
+                        </p>
                         <p className="text-gray-400">{data.companyName}</p>
                         <p className="text-blue-400 font-medium mt-1">
                           {data.percentage.toFixed(2)}%
                         </p>
-                        {data.symbol === 'Others' && symbols.length > 0 && (
+                        {data.symbol === "Others" && symbols.length > 0 && (
                           <p className="text-xs text-gray-500 mt-1">
-                            Includes: {displayed}{moreCount}
+                            Includes: {displayed}
+                            {moreCount}
                           </p>
                         )}
                       </div>
@@ -174,23 +215,32 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ distribution }) =
           {finalData.map((item, index) => (
             <div
               key={item.symbol}
-              className={`flex items-center space-x-3 cursor-pointer transition-all duration-150 ${
-                activeIndex === index ? 'opacity-100 scale-[1.03]' : 'opacity-60 hover:opacity-90'
+              className={`flex items-center cursor-pointer transition-all duration-150 ${
+                activeIndex === index
+                  ? "opacity-100 scale-[1.03]"
+                  : "opacity-60 hover:opacity-90"
               }`}
               onMouseEnter={() => setActiveIndex(index)}
               onMouseLeave={() => setActiveIndex(-1)}
             >
               <div
-                className="w-3 h-3 rounded-full"
+                className="w-3 h-3 rounded-full flex-shrink-0" // Added flex-shrink-0 here
                 style={{
                   backgroundColor:
-                    item.symbol === 'Others' ? OTHERS_COLOR : COLORS[index % COLORS.length],
+                    item.symbol === "Others"
+                      ? OTHERS_COLOR
+                      : COLORS[index % COLORS.length],
                 }}
               />
-              <span className="text-sm text-white font-medium w-16">{item.symbol}</span>
-              <span className="text-sm text-gray-400">
-                {item.percentage.toFixed(2)}%
-              </span>
+              {/* This is the new wrapper */}
+              <div className="flex justify-between items-center w-full ml-3">
+                <span className="text-sm text-white font-medium truncate pr-2">
+                  {item.symbol.replace(/\.NS|-USD/g, '')}
+                </span>
+                <span className="text-sm text-gray-400">
+                  {item.percentage.toFixed(2)}%
+                </span>
+              </div>
             </div>
           ))}
         </div>

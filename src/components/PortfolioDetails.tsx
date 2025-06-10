@@ -74,6 +74,7 @@ const PortfolioDetails: React.FC = () => {
     quantity: "",
     buyPrice: "",
     notes: "",
+    companyName: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -238,6 +239,7 @@ const PortfolioDetails: React.FC = () => {
     { column: "gainLossPercent" as SortColumn, label: "P/L %" },
   ];
 
+
   // Event handlers
   const handleAddHolding = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,7 +250,7 @@ const PortfolioDetails: React.FC = () => {
       await addHolding(portfolioId, { ...newHolding, type: activeTab });
       await fetchPortfolioData();
       setIsAddModalOpen(false);
-      setNewHolding({ symbol: "", quantity: "", buyPrice: "", notes: "" });
+      setNewHolding({ symbol: "", quantity: "", buyPrice: "", notes: "", companyName: "" });
       toast.success("Transaction successful!");
     } catch (err) {
       toast.error("Failed to process transaction");
