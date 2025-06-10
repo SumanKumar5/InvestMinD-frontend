@@ -1,4 +1,4 @@
-# 🚀 InvestMinD — Smart Investor Portfolio Tracker
+# InvestMinD — Smart Investor Portfolio Tracker
 
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green?logo=node.js)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://reactjs.org/)
