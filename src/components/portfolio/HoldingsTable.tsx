@@ -1,7 +1,16 @@
-import React from 'react';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { MoreVertical, Eye, Brain, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import React from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import {
+  MoreVertical,
+  Eye,
+  Brain,
+  Trash2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
+import { usePriceFormatter } from "../../hooks/usePriceFormatter";
+import { formatPercentage } from "../../utils/formatters";
 
 interface Holding {
   _id: string;
@@ -18,14 +27,20 @@ interface Holding {
 interface HoldingsTableProps {
   holdings: Holding[];
   sortColumn: string;
-  sortOrder: 'asc' | 'desc';
+  sortOrder: "asc" | "desc";
   onSort: (column: string) => void;
   onViewTransactions: (holdingId: string) => void;
   onGetInsight: (symbol: string) => void;
   onDelete: (holdingId: string) => void;
 }
 
-type SortColumn = 'symbol' | 'quantity' | 'avgBuyPrice' | 'currentPrice' | 'gainLoss' | 'gainLossPercent';
+type SortColumn =
+  | "symbol"
+  | "quantity"
+  | "avgBuyPrice"
+  | "currentPrice"
+  | "gainLoss"
+  | "gainLossPercent";
 
 const HoldingsTable: React.FC<HoldingsTableProps> = ({
   holdings,
@@ -34,26 +49,41 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({
   onSort,
   onViewTransactions,
   onGetInsight,
-  onDelete
+  onDelete,
 }) => {
-  // Get sort icon for column (desktop)
+  const formatPrice = usePriceFormatter();
+
+  const cleanSymbol = (symbol: string) =>
+    symbol.replace(/[-.]?(USD|NS|BSE)$/i, "");
+
   const getSortIcon = (column: SortColumn) => {
     if (sortColumn !== column) {
-      return <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />;
+      return (
+        <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+      );
     }
-    return sortOrder === 'asc' 
-      ? <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
-      : <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />;
+    return sortOrder === "asc" ? (
+      <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+    ) : (
+      <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+    );
   };
 
-  // Column configuration
   const columns = [
-    { key: 'symbol' as SortColumn, label: 'Symbol', sortable: true },
-    { key: 'quantity' as SortColumn, label: 'Quantity', sortable: true },
-    { key: 'avgBuyPrice' as SortColumn, label: 'Avg. Buy Price', sortable: true },
-    { key: 'currentPrice' as SortColumn, label: 'Current Price', sortable: true },
-    { key: 'gainLoss' as SortColumn, label: 'P/L', sortable: true },
-    { key: null, label: 'Actions', sortable: false }
+    { key: "symbol" as SortColumn, label: "Symbol", sortable: true },
+    {
+      key: "currentPrice" as SortColumn,
+      label: "Current Price",
+      sortable: true,
+    },
+    { key: "quantity" as SortColumn, label: "Holdings", sortable: true },
+    {
+      key: "avgBuyPrice" as SortColumn,
+      label: "Avg. Buy Price",
+      sortable: true,
+    },
+    { key: "gainLoss" as SortColumn, label: "Profit/Loss", sortable: true },
+    { key: null, label: "Actions", sortable: false },
   ];
 
   return (
@@ -62,23 +92,21 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({
         <thead>
           <tr className="text-left text-gray-400 border-b border-gray-700/50">
             {columns.map((column) => (
-              <th 
+              <th
                 key={column.label}
                 className={`pb-3 sm:pb-4 font-medium text-xs sm:text-sm ${
-                  column.sortable 
-                    ? 'cursor-pointer hover:text-blue-400 transition-colors group select-none' 
-                    : ''
+                  column.sortable
+                    ? "cursor-pointer hover:text-blue-400 transition-colors group select-none"
+                    : ""
                 } ${
-                  column.key === sortColumn ? 'text-blue-400 font-semibold' : ''
+                  column.key === sortColumn ? "text-blue-400 font-semibold" : ""
                 }`}
-                onClick={() => column.sortable && column.key && onSort(column.key)}
+                onClick={() =>
+                  column.sortable && column.key && onSort(column.key)
+                }
               >
                 <div className="flex items-center space-x-1 sm:space-x-2">
-                  <span className={`${
-                    column.key === sortColumn ? 'text-blue-400' : ''
-                  } transition-colors`}>
-                    {column.label}
-                  </span>
+                  <span>{column.label}</span>
                   {column.sortable && column.key && (
                     <div className="flex items-center">
                       {getSortIcon(column.key)}
@@ -89,9 +117,13 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({
             ))}
           </tr>
         </thead>
+
         <tbody className="divide-y divide-gray-700/50">
           {holdings.map((holding) => (
-            <tr key={holding._id} className="hover:bg-gray-750/30 transition-colors group/row">
+            <tr
+              key={holding._id}
+              className="hover:bg-gray-750/30 transition-colors group/row"
+            >
               {/* Symbol Column */}
               <td className="py-3 sm:py-4">
                 <div>
@@ -104,26 +136,38 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({
                 </div>
               </td>
 
-              {/* Quantity Column */}
+              {/* Current Price Column */}
+              <td className="py-3 sm:py-4 text-sm sm:text-base text-gray-300 font-mono">
+                {formatPrice(holding.currentPrice)}
+              </td>
+
+              {/* Holdings Column */}
               <td className="py-3 sm:py-4 text-sm sm:text-base text-gray-300 font-medium">
-                {holding.quantity.toLocaleString()}
+                <div className="flex flex-col">
+                  <span className="font-mono">
+                    {formatPrice(holding.currentPrice * holding.quantity)}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {holding.quantity.toLocaleString()}{" "}
+                    {cleanSymbol(holding.symbol)}
+                  </span>
+                </div>
               </td>
 
               {/* Avg Buy Price Column */}
               <td className="py-3 sm:py-4 text-sm sm:text-base text-gray-300 font-mono">
-                {formatCurrency(holding.avgBuyPrice)}
+                {formatPrice(holding.avgBuyPrice)}
               </td>
 
-              {/* Current Price Column */}
-              <td className="py-3 sm:py-4 text-sm sm:text-base text-gray-300 font-mono">
-                {formatCurrency(holding.currentPrice)}
-              </td>
-
-              {/* P/L Column */}
+              {/* Profit/Loss Column */}
               <td className="py-3 sm:py-4">
-                <div className={`${holding.gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                <div
+                  className={`${
+                    holding.gainLoss >= 0 ? "text-emerald-400" : "text-red-400"
+                  }`}
+                >
                   <div className="text-sm sm:text-base font-semibold font-mono">
-                    {formatCurrency(holding.gainLoss)}
+                    {formatPrice(holding.gainLoss)}
                   </div>
                   <div className="text-xs sm:text-sm font-mono">
                     ({formatPercentage(holding.gainLossPercent)})
@@ -184,7 +228,9 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({
       {/* Empty State */}
       {holdings.length === 0 && (
         <div className="text-center py-8 sm:py-12">
-          <p className="text-gray-400 text-sm sm:text-base">No holdings found</p>
+          <p className="text-gray-400 text-sm sm:text-base">
+            No holdings found
+          </p>
         </div>
       )}
     </div>

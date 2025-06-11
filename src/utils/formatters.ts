@@ -1,12 +1,3 @@
-export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value);
-};
-
 export const formatLargeNumber = (value: number): string => {
   if (value >= 1000000000000) {
     return `${(value / 1000000000000).toFixed(2)}T`;

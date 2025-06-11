@@ -1,5 +1,6 @@
 import React from 'react';
-import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { usePriceFormatter } from '../../hooks/usePriceFormatter';
+import { formatPercentage } from '../../utils/formatters';
 
 interface Analytics {
   totalInvestment: number;
@@ -13,16 +14,17 @@ interface AnalyticsCardsProps {
 }
 
 const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({ analytics }) => {
+  const formatPrice = usePriceFormatter();
   const cards = [
     {
       title: 'Total Investment',
-      value: formatCurrency(analytics?.totalInvestment || 0),
+      value: formatPrice(analytics?.totalInvestment || 0),
       gradient: 'from-blue-500 to-blue-600',
       bgGradient: 'from-blue-500/10 to-blue-600/5'
     },
     {
       title: 'Current Value',
-      value: formatCurrency(analytics?.currentValue || 0),
+      value: formatPrice(analytics?.currentValue || 0),
       gradient: 'from-emerald-500 to-emerald-600',
       bgGradient: 'from-emerald-500/10 to-emerald-600/5'
     },
@@ -44,7 +46,7 @@ const AnalyticsCards: React.FC<AnalyticsCardsProps> = ({ analytics }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      {cards.map((card, index) => (
+      {cards.map((card) => (
         <div
           key={card.title}
           className="group bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:-translate-y-1"

@@ -26,7 +26,7 @@ import {
   getPortfolioAnalytics,
 } from "../services/api";
 import toast, { Toaster } from "react-hot-toast";
-import { formatCurrency } from "../utils/formatters";
+import { usePriceFormatter } from "../hooks/usePriceFormatter";
 
 interface Portfolio {
   _id: string;
@@ -70,6 +70,8 @@ const Portfolio: React.FC = () => {
       ? urlSortBy
       : "date";
   });
+
+  const formatPrice = usePriceFormatter();
 
   const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
     const urlOrder = searchParams.get("order") as SortOrder;
@@ -321,7 +323,7 @@ const Portfolio: React.FC = () => {
         <div>
           <div className="text-sm text-gray-400">Investment</div>
           <div className="text-base font-mono font-semibold text-white">
-            {formatCurrency(portfolio.analytics?.totalInvestment || 0)}
+            {formatPrice(portfolio.analytics?.totalInvestment || 0)}
           </div>
         </div>
 

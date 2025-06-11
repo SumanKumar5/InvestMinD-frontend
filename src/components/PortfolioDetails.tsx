@@ -37,7 +37,11 @@ import {
   getPortfolioInsight,
   getStockInsight,
 } from "../services/api";
-import { formatCurrency, formatPercentage } from "../utils/formatters";
+import { formatPercentage } from "../utils/formatters";
+import { useCurrency } from "../contexts/CurrencyContext";
+import { usePriceFormatter } from "../hooks/usePriceFormatter";
+import { exportHoldingsToExcel } from "../utils/exportExcel";
+
 
 type SortColumn =
   | "symbol"
@@ -49,6 +53,7 @@ type SortColumn =
 type SortOrder = "asc" | "desc";
 
 const PortfolioDetails: React.FC = () => {
+  const { currency, exchangeRate } = useCurrency();
   const { portfolioId } = useParams<{ portfolioId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -154,8 +159,8 @@ const PortfolioDetails: React.FC = () => {
           bValue = b.symbol.toLowerCase();
           break;
         case "quantity":
-          aValue = a.quantity;
-          bValue = b.quantity;
+          aValue = a.quantity * a.currentPrice;
+          bValue = b.quantity * b.currentPrice;
           break;
         case "avgBuyPrice":
           aValue = a.avgBuyPrice;
@@ -207,7 +212,7 @@ const PortfolioDetails: React.FC = () => {
   const getCurrentSortLabel = () => {
     const labels = {
       symbol: "Symbol",
-      quantity: "Quantity",
+      quantity: "Holdings",
       avgBuyPrice: "Avg. Buy Price",
       currentPrice: "Current Price",
       gainLoss: "P/L Amount",
@@ -232,40 +237,50 @@ const PortfolioDetails: React.FC = () => {
   // Mobile sort options - simplified
   const mobileSortOptions = [
     { column: "symbol" as SortColumn, label: "Symbol" },
-    { column: "quantity" as SortColumn, label: "Quantity" },
+    { column: "quantity" as SortColumn, label: "Holdings" },
     { column: "avgBuyPrice" as SortColumn, label: "Avg. Buy Price" },
     { column: "currentPrice" as SortColumn, label: "Current Price" },
     { column: "gainLoss" as SortColumn, label: "P/L Amount" },
     { column: "gainLossPercent" as SortColumn, label: "P/L %" },
   ];
 
-
   // Event handlers
-const handleAddHolding = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!portfolioId || !validateForm()) return;
+  const handleAddHolding = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!portfolioId || !validateForm()) return;
 
-  setIsSubmitting(true);
-  try {
-    await addHolding(portfolioId, { ...newHolding, type: activeTab });
-    await fetchPortfolioData();
-    setIsAddModalOpen(false);
-    setNewHolding({
-      symbol: "",
-      quantity: "",
-      buyPrice: "",
-      notes: "",
-      companyName: "",
-    });
-    toast.success("Transaction successful!");
-  } catch (err: any) {
-    const message =
-      err?.response?.data?.message || "Failed to process transaction";
-    toast.error(message);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    setIsSubmitting(true);
+
+    try {
+      const priceInUSD =
+        currency === "INR"
+          ? (parseFloat(newHolding.buyPrice) / exchangeRate).toFixed(4)
+          : newHolding.buyPrice;
+
+      await addHolding(portfolioId, {
+        ...newHolding,
+        type: activeTab,
+        buyPrice: priceInUSD,
+      });
+
+      await fetchPortfolioData();
+      setIsAddModalOpen(false);
+      setNewHolding({
+        symbol: "",
+        quantity: "",
+        buyPrice: "",
+        notes: "",
+        companyName: "",
+      });
+      toast.success("Transaction successful!");
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message || "Failed to process transaction";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleDeleteHolding = async () => {
     if (!holdingToDelete) return;
@@ -284,23 +299,14 @@ const handleAddHolding = async (e: React.FormEvent) => {
     }
   };
 
-  const handleExport = async () => {
-    if (!portfolioId) return;
-
-    try {
-      const blob = await exportPortfolio(portfolioId);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `portfolio-${portfolioId}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      toast.error("Failed to export portfolio");
-    }
-  };
+const handleExport = () => {
+  exportHoldingsToExcel({
+    holdings,
+    currency,
+    exchangeRate,
+    fileName: `portfolio-${portfolioId}.xlsx`,
+  });
+};
 
   const handlePortfolioInsight = async () => {
     if (!portfolioId) return;
@@ -380,103 +386,114 @@ const handleAddHolding = async (e: React.FormEvent) => {
   );
 
   // Enhanced Mobile Holdings Card Component
-  const MobileHoldingCard = ({ holding }: { holding: any }) => (
-    <div className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 hover:border-blue-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] group">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-base sm:text-lg text-white group-hover:text-blue-400 transition-colors truncate">
-            {holding.symbol}
-          </h4>
-          <p className="text-xs sm:text-sm text-gray-400 truncate">
-            {holding.companyName}
-          </p>
-        </div>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors flex-shrink-0">
-              <MoreVertical className="h-4 w-4" />
-            </button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content
-              className="min-w-[180px] bg-gray-800/95 backdrop-blur-sm rounded-lg p-1 shadow-xl border border-gray-700/50 z-50"
-              sideOffset={5}
-              align="end"
-            >
-              <DropdownMenu.Item
-                className="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md cursor-pointer transition-colors"
-                onSelect={() => navigate(`/holding/${holding._id}`)}
-              >
-                View Transactions
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
-                className="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md cursor-pointer transition-colors"
-                onSelect={() => handleStockInsight(holding.symbol)}
-              >
-                Get AI Insight
-              </DropdownMenu.Item>
-              <DropdownMenu.Separator className="h-px bg-gray-700/50 my-1" />
-              <DropdownMenu.Item
-                className="flex items-center px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700/50 rounded-md cursor-pointer transition-colors"
-                onSelect={() => {
-                  setHoldingToDelete(holding._id);
-                  setIsDeleteModalOpen(true);
-                }}
-              >
-                Delete
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
-      </div>
+  const MobileHoldingCard = ({ holding }: { holding: any }) => {
+    const formatPrice = usePriceFormatter();
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="space-y-3">
-          <div>
-            <span className="text-xs text-gray-400 block mb-1">Quantity</span>
-            <span className="text-sm sm:text-base font-medium text-white">
-              {holding.quantity}
-            </span>
+    const cleanSymbol = (symbol: string) =>
+      symbol.replace(/[-.]?(USD|NS|BSE)$/i, "");
+
+    return (
+      <div className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 hover:border-blue-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] group">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-base sm:text-lg text-white group-hover:text-blue-400 transition-colors truncate">
+              {holding.symbol}
+            </h4>
+            <p className="text-xs sm:text-sm text-gray-400 truncate">
+              {holding.companyName}
+            </p>
           </div>
-          <div>
-            <span className="text-xs text-gray-400 block mb-1">
-              Avg. Buy Price
-            </span>
-            <span className="text-sm sm:text-base font-mono font-medium text-white">
-              {formatCurrency(holding.avgBuyPrice)}
-            </span>
-          </div>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors flex-shrink-0">
+                <MoreVertical className="h-4 w-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                className="min-w-[180px] bg-gray-800/95 backdrop-blur-sm rounded-lg p-1 shadow-xl border border-gray-700/50 z-50"
+                sideOffset={5}
+                align="end"
+              >
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md cursor-pointer transition-colors"
+                  onSelect={() => navigate(`/holding/${holding._id}`)}
+                >
+                  View Transactions
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-md cursor-pointer transition-colors"
+                  onSelect={() => handleStockInsight(holding.symbol)}
+                >
+                  Get AI Insight
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-700/50 my-1" />
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-700/50 rounded-md cursor-pointer transition-colors"
+                  onSelect={() => {
+                    setHoldingToDelete(holding._id);
+                    setIsDeleteModalOpen(true);
+                  }}
+                >
+                  Delete
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
-        <div className="space-y-3">
-          <div>
-            <span className="text-xs text-gray-400 block mb-1">
-              Current Price
-            </span>
-            <span className="text-sm sm:text-base font-mono font-medium text-white">
-              {formatCurrency(holding.currentPrice)}
-            </span>
-          </div>
-          <div>
-            <span className="text-xs text-gray-400 block mb-1">P/L</span>
-            <div
-              className={`text-sm sm:text-base font-semibold ${
-                holding.gainLoss >= 0 ? "text-emerald-400" : "text-red-400"
-              }`}
-            >
-              <div className="font-mono">
-                {formatCurrency(holding.gainLoss)}
+
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="space-y-3">
+            <div>
+              <span className="text-xs text-gray-400 block mb-1">Holdings</span>
+              <div className="flex flex-col">
+                <span className="text-sm sm:text-base font-mono font-medium text-white">
+                  {formatPrice(holding.currentPrice * holding.quantity)}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {holding.quantity.toLocaleString()}{" "}
+                  {cleanSymbol(holding.symbol)}
+                </span>
               </div>
-              <div className="text-xs">
-                ({formatPercentage(holding.gainLossPercent)})
+            </div>
+            <div>
+              <span className="text-xs text-gray-400 block mb-1">
+                Avg. Buy Price
+              </span>
+              <span className="text-sm sm:text-base font-mono font-medium text-white">
+                {formatPrice(holding.avgBuyPrice)}
+              </span>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <span className="text-xs text-gray-400 block mb-1">
+                Current Price
+              </span>
+              <span className="text-sm sm:text-base font-mono font-medium text-white">
+                {formatPrice(holding.currentPrice)}
+              </span>
+            </div>
+            <div>
+              <span className="text-xs text-gray-400 block mb-1">
+                Profit/Loss
+              </span>
+              <div
+                className={`text-sm sm:text-base font-semibold ${
+                  holding.gainLoss >= 0 ? "text-emerald-400" : "text-red-400"
+                }`}
+              >
+                <div className="font-mono">{formatPrice(holding.gainLoss)}</div>
+                <div className="text-xs">
+                  ({formatPercentage(holding.gainLossPercent)})
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">

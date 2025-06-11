@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Calendar, DollarSign, Hash, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRequireAuth } from '../hooks/useAuth';
 import { getTransactions, getHoldingDetails } from '../services/api';
-import { formatCurrency } from '../utils/formatters';
+import { useCurrency } from "../contexts/CurrencyContext";
+import { usePriceFormatter } from "../hooks/usePriceFormatter";
 import { useLoading } from '../contexts/LoadingContext';
 import Header from './Header';
 import Footer from './Footer';
@@ -31,6 +32,8 @@ const HoldingTransactions: React.FC = () => {
   const { startLoading, stopLoading } = useLoading();
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { currency, exchangeRate } = useCurrency();
+  const formatPrice = usePriceFormatter();
   const [holding, setHolding] = useState<HoldingSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -123,7 +126,7 @@ const HoldingTransactions: React.FC = () => {
               <div className="min-w-0 flex-1">
                 <div className="text-xs text-gray-400 mb-0.5">Price</div>
                 <div className="font-mono text-sm sm:text-base font-medium text-white truncate">
-                  {formatCurrency(transaction.price)}
+                  {formatPrice(transaction.price)}
                 </div>
               </div>
             </div>
@@ -146,7 +149,7 @@ const HoldingTransactions: React.FC = () => {
             <div className="min-w-0">
               <div className="text-xs text-gray-400 mb-0.5">Total Value</div>
               <div className="font-mono text-sm sm:text-base font-semibold text-white truncate">
-                {formatCurrency(transaction.price * transaction.quantity)}
+                {formatPrice(transaction.price * transaction.quantity)}
               </div>
             </div>
 
@@ -293,7 +296,7 @@ const HoldingTransactions: React.FC = () => {
                 <div className="text-left sm:text-right">
                   <p className="text-xs sm:text-sm text-gray-400 mb-1">Current Price</p>
                   <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
-                    {formatCurrency(holding.currentPrice)}
+                    {formatPrice(holding.currentPrice)}
                   </p>
                 </div>
               </div>
@@ -353,7 +356,7 @@ const HoldingTransactions: React.FC = () => {
                               </span>
                             </td>
                             <td className="py-4 font-mono text-sm text-white">
-                              {formatCurrency(transaction.price)}
+                              {formatPrice(transaction.price)}
                             </td>
                             <td className="py-4">
                               <span className={`font-semibold ${
@@ -363,7 +366,7 @@ const HoldingTransactions: React.FC = () => {
                               </span>
                             </td>
                             <td className="py-4 font-mono text-sm font-semibold text-white">
-                              {formatCurrency(transaction.price * transaction.quantity)}
+                              {formatPrice(transaction.price * transaction.quantity)}
                             </td>
                             <td className="py-4 text-sm text-gray-300">
                               {formatDateTime(transaction.executedAt)}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { formatCurrency, formatPercentage } from '../../utils/formatters';
+import { usePriceFormatter } from '../../hooks/usePriceFormatter';
+import { formatPercentage } from '../../utils/formatters';
 
 // Updated interface to include companyName
 interface BestWorst {
@@ -23,6 +24,7 @@ interface PerformersCardsProps {
 }
 
 const PerformersCards: React.FC<PerformersCardsProps> = ({ bestWorst }) => {
+  const formatPrice = usePriceFormatter();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Best Performer */}
@@ -49,7 +51,7 @@ const PerformersCards: React.FC<PerformersCardsProps> = ({ bestWorst }) => {
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-1 sm:space-y-0">
                 <span className="text-emerald-400 font-mono text-sm sm:text-base font-semibold">
-                  +{formatCurrency(bestWorst.best.gain)}
+                  +{formatPrice(bestWorst.best.gain)}
                 </span>
                 <span className="text-emerald-400 font-mono text-sm sm:text-base">
                   ({formatPercentage(bestWorst.best.percent)})
@@ -89,7 +91,7 @@ const PerformersCards: React.FC<PerformersCardsProps> = ({ bestWorst }) => {
               </p>
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-1 sm:space-y-0">
                 <span className="text-red-400 font-mono text-sm sm:text-base font-semibold">
-                  {formatCurrency(bestWorst.worst.gain)}
+                  {formatPrice(bestWorst.worst.gain)}
                 </span>
                 <span className="text-red-400 font-mono text-sm sm:text-base">
                   ({formatPercentage(bestWorst.worst.percent)})

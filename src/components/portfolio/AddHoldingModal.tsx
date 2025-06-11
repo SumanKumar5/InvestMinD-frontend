@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, Plus, Loader2 } from "lucide-react";
 import Fuse from "fuse.js";
+import { useCurrency } from "../../contexts/CurrencyContext";
 
 interface AddHoldingModalProps {
   isOpen: boolean;
@@ -14,14 +15,14 @@ interface AddHoldingModalProps {
     notes: string;
   };
   setNewHolding: React.Dispatch<
-  React.SetStateAction<{
-    symbol: string;
-    quantity: string;
-    buyPrice: string;
-    notes: string;
-    companyName: string;
-  }>
->;
+    React.SetStateAction<{
+      symbol: string;
+      quantity: string;
+      buyPrice: string;
+      notes: string;
+      companyName: string;
+    }>
+  >;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
 }
@@ -88,7 +89,11 @@ const AddHoldingModal: React.FC<AddHoldingModalProps> = ({
 
   const selectSymbol = (item: any) => {
     const formatted = `${item.name} (${item.symbol})`;
-    setNewHolding({ ...newHolding, symbol: item.symbol, companyName: item.name });
+    setNewHolding({
+      ...newHolding,
+      symbol: item.symbol,
+      companyName: item.name,
+    });
     setSearchQuery(formatted);
     setShowDropdown(false);
     setSymbolValid(true);
@@ -124,6 +129,7 @@ const AddHoldingModal: React.FC<AddHoldingModalProps> = ({
     {}
   );
 
+  const { currency } = useCurrency();
   if (!isOpen) return null;
 
   return (
@@ -213,8 +219,7 @@ const AddHoldingModal: React.FC<AddHoldingModalProps> = ({
             />
             {!symbolValid && (
               <p className="text-red-400 text-xs mt-1">
-                ❗Please select a asset from the
-                dropdown.
+                ❗Please select a asset from the dropdown.
               </p>
             )}
 
@@ -287,13 +292,16 @@ const AddHoldingModal: React.FC<AddHoldingModalProps> = ({
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm sm:text-base">
-                $
+                {currency === "INR" ? "₹" : "$"}
               </span>
               <input
                 type="number"
                 value={newHolding.buyPrice}
                 onChange={(e) =>
-                  setNewHolding((prev) => ({ ...prev, buyPrice: e.target.value }))
+                  setNewHolding((prev) => ({
+                    ...prev,
+                    buyPrice: e.target.value,
+                  }))
                 }
                 className="w-full pl-8 pr-3 sm:pr-4 py-2 sm:py-3 bg-gray-700/80 border border-gray-600/50 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all text-sm sm:text-base"
                 placeholder="0.00"

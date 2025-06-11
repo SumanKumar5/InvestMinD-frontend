@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
 import {
-  formatCurrency,
   formatLargeNumber,
   formatPercentage,
 } from "../utils/formatters";
@@ -9,6 +8,9 @@ import { mockAssets } from "../data/mockAssets";
 import { Asset } from "../types/asset";
 import SearchBar from "./SearchBar";
 import FilterTabs from "./FilterTabs";
+import { useCurrency } from "../contexts/CurrencyContext";
+import { usePriceFormatter } from "../hooks/usePriceFormatter";
+
 
 type SortField =
   | "rank"
@@ -20,6 +22,8 @@ type SortField =
 type SortDirection = "asc" | "desc";
 
 const AssetTable: React.FC = () => {
+  const { currency, exchangeRate } = useCurrency();
+const formatPrice = usePriceFormatter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
     "all" | "stocks" | "crypto" | "funds"
@@ -106,13 +110,13 @@ const AssetTable: React.FC = () => {
           <div>
             <span className="text-xs text-gray-400 block mb-1">Price</span>
             <span className="font-mono text-sm sm:text-base font-semibold text-white">
-              {formatCurrency(asset.price)}
+              {formatPrice(asset.price)}
             </span>
           </div>
           <div>
             <span className="text-xs text-gray-400 block mb-1">Market Cap</span>
             <span className="font-mono text-sm font-medium text-gray-300">
-              {formatCurrency(asset.marketCap).split(".")[0]}
+              {formatPrice(asset.marketCap).split(".")[0]}
             </span>
           </div>
         </div>
@@ -233,7 +237,7 @@ const AssetTable: React.FC = () => {
                         {asset.name}
                       </td>
                       <td className="px-4 xl:px-6 py-4 text-sm text-right text-gray-300 font-mono font-semibold">
-                        {formatCurrency(asset.price)}
+                        {formatPrice(asset.price)}
                       </td>
                       <td className="px-4 xl:px-6 py-4 text-sm text-right font-semibold">
                         <span
@@ -247,7 +251,7 @@ const AssetTable: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-4 xl:px-6 py-4 text-sm text-right text-gray-300 font-mono">
-                        {formatCurrency(asset.marketCap).split(".")[0]}
+                        {formatPrice(asset.marketCap).split(".")[0]}
                       </td>
                       <td className="px-4 xl:px-6 py-4 text-sm text-right text-gray-300 font-mono">
                         {formatLargeNumber(asset.volume)}
