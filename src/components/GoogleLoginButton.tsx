@@ -94,9 +94,7 @@ const GoogleLoginButton = () => {
   };
 
   return (
-    <div className="w-full flex justify-center mt-4">
-      <div id="googleSignInDiv" className="w-[280px]"></div>
-    </div>
+    <div id="googleSignInDiv" className="w-full flex justify-center mt-4"></div>
   );
 };
 
