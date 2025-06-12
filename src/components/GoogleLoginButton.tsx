@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { loginWithGoogle } from "../services/api";
 
@@ -38,6 +37,8 @@ const GoogleLoginButton = () => {
 
       window.location.href = "/portfolio";
     } catch {
+      localStorage.removeItem("investmind_token");
+      localStorage.removeItem("user");
       toast.custom(
         (t) => (
           <div
@@ -93,7 +94,9 @@ const GoogleLoginButton = () => {
   };
 
   return (
-    <div id="googleSignInDiv" className="w-full flex justify-center mt-4"></div>
+    <div className="w-full flex justify-center mt-4">
+      <div id="googleSignInDiv" className="w-[280px]"></div>
+    </div>
   );
 };
 
