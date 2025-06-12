@@ -90,11 +90,7 @@ const Portfolio: React.FC = () => {
     try {
       const analytics = await getPortfolioAnalytics(portfolioId);
       return analytics;
-    } catch (err) {
-      console.error(
-        `Failed to fetch analytics for portfolio ${portfolioId}:`,
-        err
-      );
+    } catch {
       return null;
     }
   };

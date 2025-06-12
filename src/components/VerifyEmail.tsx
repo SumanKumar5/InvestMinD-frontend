@@ -103,7 +103,7 @@ const VerifyEmail: React.FC = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-      ), { duration: 2000 });
+      ), { duration: 1000 });
 
       // Redirect to portfolio
       setTimeout(() => {
@@ -135,7 +135,7 @@ const VerifyEmail: React.FC = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-      ), { duration: 4000 });
+      ), { duration: 1000 });
     }
   };
 
@@ -170,7 +170,7 @@ const VerifyEmail: React.FC = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-      ), { duration: 2000 });
+      ), { duration: 1000 });
     } catch (err: any) {
       const message = err.response?.data?.message || 'Failed to resend OTP. Please try again.';
       setError(message);
@@ -195,7 +195,7 @@ const VerifyEmail: React.FC = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-      ), { duration: 4000 });
+      ), { duration: 1000 });
     } finally {
       setIsResending(false);
     }
@@ -206,7 +206,7 @@ const VerifyEmail: React.FC = () => {
       <Toaster 
         position="top-right"
         toastOptions={{
-          duration: 2000,
+          duration: 1000,
           className: 'bg-transparent border-0 shadow-none p-0 m-0'
         }}
       />

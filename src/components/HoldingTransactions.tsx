@@ -53,7 +53,6 @@ const HoldingTransactions: React.FC = () => {
         setTransactions(transactionsData);
         setHolding(holdingData);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
       } finally {
         setIsLoading(false);
         stopLoading();

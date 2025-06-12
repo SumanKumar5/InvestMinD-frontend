@@ -33,8 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const response = await api.get('/api/auth/me');
         setUser(response.data);
-      } catch (err) {
-        console.error('Failed to fetch user data:', err);
+      } catch {
         localStorage.removeItem('investmind_token');
         setError('Session expired. Please login again.');
         navigate('/login');

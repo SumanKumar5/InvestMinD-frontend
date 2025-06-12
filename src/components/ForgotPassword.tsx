@@ -120,7 +120,7 @@ const ForgotPassword: React.FC = () => {
             </button>
           </div>
         ),
-        { duration: 4000 }
+        { duration: 1000 }
       );
     }
   };
@@ -130,7 +130,7 @@ const ForgotPassword: React.FC = () => {
       <Toaster
         position="top-right"
         toastOptions={{
-          duration: 2000,
+          duration: 1000,
           className: 'bg-transparent border-0 shadow-none p-0 m-0',
         }}
       />

@@ -4,6 +4,7 @@ import { Eye, EyeOff, Brain, X, CheckCircle2, AlertCircle } from "lucide-react";
 import { login } from "../services/api";
 import toast, { Toaster } from "react-hot-toast";
 import { useAuthLoading } from "../contexts/AuthLoadingContext";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -135,7 +136,7 @@ const Login: React.FC = () => {
               </button>
             </div>
           ),
-          { duration: 3000 }
+          { duration: 1000 }
         );
 
         // Redirect to verify-email page
@@ -164,7 +165,7 @@ const Login: React.FC = () => {
               </button>
             </div>
           ),
-          { duration: 4000 }
+          { duration: 1000 }
         );
       }
     }
@@ -337,6 +338,16 @@ const Login: React.FC = () => {
             >
               Log In
             </button>
+
+            <div className="relative text-gray-400 text-sm text-center my-4">
+  <div className="absolute inset-0 flex items-center">
+    <div className="w-full border-t border-gray-700"></div>
+  </div>
+  <span className="bg-gray-900 px-2 relative z-10">or</span>
+</div>
+
+<GoogleLoginButton />
+
 
             <p className="text-center text-gray-400 mt-8">
               Don't have an account?{" "}

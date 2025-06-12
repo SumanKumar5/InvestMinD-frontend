@@ -4,6 +4,7 @@ import { Eye, EyeOff, Brain, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { signup } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuthLoading } from '../contexts/AuthLoadingContext';
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -146,7 +147,7 @@ const Signup: React.FC = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-      ), { duration: 2000 });
+      ), { duration: 1000 });
 
       // Redirect to verify email page with email in state
       setTimeout(() => {
@@ -178,7 +179,7 @@ const Signup: React.FC = () => {
             <X className="h-5 w-5" />
           </button>
         </div>
-      ), { duration: 4000 });
+      ), { duration: 1000 });
     }
   };
 
@@ -187,7 +188,7 @@ const Signup: React.FC = () => {
       <Toaster 
         position="top-right"
         toastOptions={{
-          duration: 2000,
+          duration: 1000,
           className: 'bg-transparent border-0 shadow-none p-0 m-0'
         }}
       />
@@ -388,6 +389,14 @@ const Signup: React.FC = () => {
             >
               Create Account
             </button>
+            <div className="relative text-gray-400 text-sm text-center my-4">
+  <div className="absolute inset-0 flex items-center">
+    <div className="w-full border-t border-gray-700"></div>
+  </div>
+  <span className="bg-gray-900 px-2 relative z-10">or</span>
+</div>
+
+<GoogleLoginButton />
 
             <p className="text-center text-gray-400 mt-8">
               Already have an account?{' '}

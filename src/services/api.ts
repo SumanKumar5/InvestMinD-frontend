@@ -64,6 +64,12 @@ export const resetPassword = async (email: string, otp: string, newPassword: str
   return response.data;
 };
 
+// Google Sign-in
+export const loginWithGoogle = async (idToken: string) => {
+  const res = await api.post("/api/auth/google", { idToken });
+  return res.data;
+};
+
 // Portfolio endpoints
 export const getPortfolios = async () => {
   const response = await api.get('/api/portfolios');
